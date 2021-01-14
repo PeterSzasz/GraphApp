@@ -1,59 +1,94 @@
 # random number and coordinate generators
 
 import random
+from abc import ABC, abstractmethod
 
-class RandomInt():
+class RandomBase():
+    def __init__(self):
+        pass
+
+    #@abstractmethod
+    def generate(self, min, max):
+        pass
+
+
+class RandomCoords(RandomBase):
+    '''random coordinates inside one big region'''
+
+    def __init__(self, num: int = 2) -> None:
+        self.num = num
+        self.seed = None
+
+    def setCoordNumber(self, num: int) -> None:
+        self.num = num
+
+    def setSeed(self, seed: int) -> None:
+        self.seed = seed
+
+    def generate(self, min: tuple, max: tuple) -> list:
+        '''
+        simple random numbers from the whole region
+        min: coordinates of top left corner
+        max: coordinates of bottom right corner
+        '''
+        result = []
+        random.seed(self.seed)
+        for n in range(self.num):
+            x = random.randint(min[0], max[0])
+            y = random.randint(min[1], max[1])
+            result.append((x,y))
+        random.seed(None)
+
+        #print(result)
+        return result
+
+
+class RandomRegionCoords(RandomCoords):
     '''
-    generates one random integer between min and max
-    '''    
-    def __init__(self) -> None:
-        self.min = 0
-        self.max = 1000
-        self.rand_strat = None
-
-    def setMin(self, min: int) -> None:
-        self.min = min
-
-    def setMax(self, max: int) -> None:
-        self.max = max
-
-    def generate(self) -> int:
-        return random.randint(self.min, self.max)
-
-
-class RandomCoord(RandomInt):
-    '''
-    extends the random int generator with a Y coordinate
-    min2, max2, setMinX, etc are for this extra dimension
-    min and max and the other parent methods are for X coord
+    extends the random coordinate generator
+    regionNum variables sets the number of regions
+    the whole area should be divided
     '''
 
-    def __init__(self) -> None:
-        self.min2 = 0
-        self.max2 = 1000
-        super().__init__()
-    
-    def setMinX(self, min: int) -> None:
-        self.setMin(min)
+    def __init__(self, num: int = 2, regionNumX: int = 2, regionNumY: int = 2) -> None:
+        self.regionNumX = regionNumX
+        self.regionNumY = regionNumY
+        super().__init__(num)
 
-    def setMaxX(self, max: int) -> None:
-        self.setMax(max)
+    def setRegionNumbers(self, regionNumX, regionNumY) -> None:
+        self.regionNumX = regionNumX
+        self.regionNumY = regionNumY
 
-    def setMinY(self, min: int) -> None:
-        self.min2 = min
+    def generate(self, min: tuple, max: tuple) -> list:
+        '''
+        simple random numbers by region
+        min: coordinates of top left corner of whole area
+        max: coordinates of bottom right corner of whole area
+        '''
+        offsetX = max[0] // self.regionNumX
+        offsetY = max[1] // self.regionNumY
 
-    def setMaxY(self, max: int) -> None:
-        self.max2 = max
+        regionMinX = min[0]
+        regionMaxX = regionMinX + offsetX
+        regionMinY = min[1]
+        regionMaxY = regionMinY + offsetY
 
-    def moveBoundaries(self, offsetX, offsetY):
-        '''shifts the min-max regions'''
-        self.min += offsetX
-        self.max += offsetX
-        self.min2 += offsetY
-        self.max2 += offsetY
-
-    def generateCoord(self) -> tuple:
-        x = self.generate()
-        y = random.randint(self.min2, self.max2)
-        print(str(x)+" "+str(y))
-        return (x, y)
+        result = []
+        self.num = 1
+        for rX in range(self.regionNumX):
+            for rY in range(self.regionNumY):
+                coord = super().generate((regionMinX, regionMinY),
+                                          (regionMaxX, regionMaxY))
+                result.append(coord[0])
+                # shift moving region y coords
+                regionMinY += offsetY
+                regionMaxY += offsetY
+            # reset moving region y coords 
+            regionMinY = 0
+            regionMaxY = 0 + offsetY
+            # shift moving region x coords
+            regionMinX += offsetX
+            regionMaxX += offsetX
+            
+        print(result)
+        return result

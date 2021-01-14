@@ -61,6 +61,11 @@ class Graph:
         for edge in self.edges:
             yield edge
 
+    def clearGraph(self):
+        '''deletes all the nodes and edges'''
+        self.edges.clear()
+        self.nodes.clear()
+
     class InvalidVertexError(Exception):
         def __init__(self, message):
             self.message = message
