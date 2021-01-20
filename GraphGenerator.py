@@ -22,7 +22,7 @@ class GraphGenerator:
     def createEdges(self, chance):
         for n1 in self.graph.nextNode():
             for n2 in self.graph.nextNode():
-                # TODO: dirty method to connect nodes, should replace
+                # TODO: dirty method to connect nodes, should replace (w delaunay)
                 if random.randint(0,100) < chance:
                     self.graph.add_edge(Edge(n1, n2))
 

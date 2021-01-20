@@ -2,9 +2,11 @@
 
 from GraphGenerator import GraphGenerator
 import sys
+import math
+import time
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QPainter, QPaintEvent, QPalette, QPen
+from PyQt5.QtGui import QBrush, QColor, QPainter, QPaintEvent, QPalette, QPen, QStaticText
 from PyQt5.QtWidgets import QComboBox, QGridLayout, QHBoxLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QStatusBar, QToolBar, QWidget
 from PyQt5.QtWidgets import QApplication
 
@@ -27,9 +29,32 @@ class GraphRender(QWidget):
     def setGraph(self, graph: Graph):
         self.graph = graph
 
+    def voronoiBackground(self, posX: int, posY: int) -> int:
+        closest = self.area_h * self.area_w
+        for node in self.graph.nextNode():
+            diff = (abs(posX - node.x()), abs(posY - node.y()))
+            diff_length = math.sqrt(diff[0]**2 + diff[1]**2)
+            if diff_length < closest:
+                closest = diff_length
+        return math.floor(closest)
+
     def paintEvent(self, a0: QPaintEvent) -> None:
         node_width = 8
         painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
+        # voronoi pixelate, kindof
+        start_time = time.perf_counter()
+        if self.graph.nodes:
+            for x in range(0, self.area_w, 2):
+                for y in range(0, self.area_h, 2):
+                    dist = self.voronoiBackground(x, y)
+                    dist = 255 - dist
+                    if dist < 0: dist = 0
+                    painter.setPen(QPen(QColor(dist, dist, dist, 255), 2))
+                    painter.drawPoint(x, y)
+        stop_time = time.perf_counter()
+        print(stop_time - start_time)
+
         painter.setPen(QPen(Qt.white, node_width//2))
         painter.drawRect(0, 0, self.area_w, self.area_h)
         # draw the edges
@@ -46,6 +71,7 @@ class GraphRender(QWidget):
                                 node.y() - node_width//2,
                                 node_width,
                                 node_width)
+            painter.drawStaticText(node.x() - 30, node.y() + 5, QStaticText(str(node)))
 
 
 class MainWindow(QMainWindow):
@@ -57,7 +83,6 @@ class MainWindow(QMainWindow):
         self.graphGen = GraphGenerator()
         self.renderer = GraphRender()
         self.setCentralWidget(self.renderer)
-
         self.numberOfNodes = 10
         self.numberOfRegionsX = 5
         self.numberOfRegionsY = 7
@@ -73,17 +98,14 @@ class MainWindow(QMainWindow):
                                             self.renderer.area_w,
                                             self.renderer.area_h)
         self.renderer.setGraph(self.graph)
-                                            
         menu = self.menuBar().addMenu("&File")
         menu.addAction("&New")
         menu.addAction("&Save")
         menu.addAction("&Load")
         menu.addAction("E&xit", self.close)
-
         toolBar = self.createToolBar()
         toolBar.setOrientation(Qt.Vertical)
         self.addToolBar(Qt.RightToolBarArea, toolBar)
-
         statusBar = QStatusBar()
         statusBar.showMessage("Status Bar! More down to earth than Space Bar.")
         self.setStatusBar(statusBar)
@@ -139,7 +161,7 @@ class MainWindow(QMainWindow):
     def setRandomStrategy(self, index: int):
         if index == 0:
             self.numberOfNodes = self.nodeNumber.value()
-            self.randomClass1 = randoms.RandomCoords(self.numberOfNodes )
+            self.randomClass1 = randoms.RandomCoords(self.numberOfNodes)
             self.graphGen.setRandomStrategy(self.randomClass1)
         elif index == 1:
             self.numberOfNodes = self.nodeNumber.value()
