@@ -1,18 +1,16 @@
 # random number and coordinate generators
 
 import random
-from abc import ABC, abstractmethod
 
-class RandomBase():
+class NodeGeneratorBase():
     def __init__(self):
         pass
 
-    #@abstractmethod
-    def generate(self, min, max):
+    def generate(self) -> list:
         pass
 
 
-class RandomCoords(RandomBase):
+class RandomCoords(NodeGeneratorBase):
     '''random coordinates inside one big region'''
 
     def __init__(self, num: int = 2) -> None:
