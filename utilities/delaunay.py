@@ -1,10 +1,21 @@
 # delaunay triangulation
 
 import numpy as np
+from utilities.node_generator import NodeGeneratorBase
 
-class Triangulation():
+class Delaunay(NodeGeneratorBase):
     def __init__(self) -> None:
         super().__init__()
+
+    def generate(self) -> list:
+        # generate edges:
+        # iterate through list of nodes and generates the circles
+        # checks if there are any other node inside the circle
+        # if not the circle is valid and the nodes should be connected
+        # generate nodes:
+        # iterate through list of nodes and generates the circles
+        # ...
+        pass
 
     def calcCircleMidpoint(self, point1: tuple, point2: tuple, point3: tuple) -> tuple:
         '''
@@ -56,6 +67,6 @@ class Triangulation():
         return L2[0],L2[1],radius
 
 if __name__ == "__main__":
-    triang = Triangulation()
+    triang = Delaunay()
     result = triang.calcCircleMidpoint((1,2), (4,2), (2,4))
     print(result)

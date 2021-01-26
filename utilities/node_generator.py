@@ -7,7 +7,7 @@ class NodeGeneratorBase():
         pass
 
     def generate(self) -> list:
-        pass
+        return []
 
 
 class RandomCoords(NodeGeneratorBase):
@@ -31,7 +31,7 @@ class RandomCoords(NodeGeneratorBase):
         '''
         result = []
         random.seed(self.seed)
-        for n in range(self.num):
+        for _ in range(self.num):
             x = random.randint(min[0], max[0])
             y = random.randint(min[1], max[1])
             result.append((x,y))
@@ -73,8 +73,8 @@ class RandomRegionCoords(RandomCoords):
 
         result = []
         self.num = 1
-        for rX in range(self.regionNumX):
-            for rY in range(self.regionNumY):
+        for _ in range(self.regionNumX):
+            for _ in range(self.regionNumY):
                 coord = super().generate((regionMinX, regionMinY),
                                           (regionMaxX, regionMaxY))
                 result.append(coord[0])

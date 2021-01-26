@@ -6,6 +6,8 @@ class Node:
     def __init__(self, posx, posy):
         self.posX = posx
         self.posY = posy
+        self.data = None
+        self.edges = []
 
     def __str__(self) -> str:
         return "(" + str(self.posX) + "," + str(self.posY) + ")"
@@ -15,6 +17,22 @@ class Node:
 
     def y(self):
         return self.posY
+
+    def addEdge(self, edge):
+        self.edges.append(edge)
+
+    def removeEdge(self, edge):
+        self.edges.remove(edge)
+
+    def nextEdge(self):
+        for edge in self.edges:
+            yield edge
+
+    def addData(self, data):
+        self.data = data
+
+    def getData(self):
+        return self.data
 
 
 class Edge:
@@ -42,10 +60,10 @@ class Graph:
         self.nodes = []
         self.incidence_m = [] #TODO: list? realy?
 
-    def add_node(self, node: Node):
+    def addNode(self, node: Node):
         self.nodes.append(node)
 
-    def add_edge(self, edge: Edge):
+    def addEdge(self, edge: Edge):
         if self.nodes.count(edge.n1()) == 0 or self.nodes.count(edge.n2()) == 0:
             raise self.InvalidVertexError("add_edge failed, start or end node missing")
         else:

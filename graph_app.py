@@ -16,24 +16,15 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Graph App")
-        self.graphGen = GraphGenerator()
         self.renderer = GraphRender()
         self.setCentralWidget(self.renderer)
-        self.numberOfNodes = 10
-        self.numberOfRegionsX = 5
-        self.numberOfRegionsY = 7
-        self.connection_chance = 2
-        self.randomStrategyList = ['Area Coordinates', 'Region Coordinates']
-        self.randomClass1 = RandomCoords(self.numberOfNodes )
-        self.randomClass2 = RandomRegionCoords(self.numberOfNodes,
-                                                  self.numberOfRegionsX,
-                                                  self.numberOfRegionsY)
-
-        self.graphGen.setNodesStrategy(self.randomClass1)
-        #self.graph = self.graphGen.genGraph(self.connection_chance,
-        self.graph = self.graphGen.genGraph_Delaunay(self.renderer.area_w,
-                                                     self.renderer.area_h)
+        # set up graph generator and renderer
+        self.graphGen = GraphGenerator()
+        self.graphGen.area_h = self.renderer.area_h
+        self.graphGen.area_w = self.renderer.area_w
+        self.graph = self.graphGen.genGraph()
         self.renderer.setGraph(self.graph)
+        # set up menus and bars
         menu = self.menuBar().addMenu("&File")
         menu.addAction("&New")
         menu.addAction("&Save")
@@ -50,38 +41,43 @@ class MainWindow(QMainWindow):
         toolBar = QToolBar(self)
         toolBar.addAction("New Graph", self.newGraph)
         toolBar.addSeparator()
-        toolBar.addWidget(QLabel("Random strategy:"))
+        toolBar.addWidget(QLabel("Node generator:"))
         nodeStratBox = QComboBox(toolBar)
-        nodeStratBox.addItems(self.randomStrategyList)
+        nodeStratBox.addItems(self.graphGen.nodeStrategyList)
         nodeStratBox.currentIndexChanged.connect(self.setNewNodeStrategy)
         toolBar.addWidget(nodeStratBox)
+        toolBar.addWidget(QLabel("\nEdge generator:"))
         edgeStratBox = QComboBox(toolBar)
-        edgeStratBox.addItems(self.randomStrategyList)
+        edgeStratBox.addItems(self.graphGen.edgeStrategyList)
         edgeStratBox.currentIndexChanged.connect(self.setNewEdgeStrategy)
         toolBar.addWidget(edgeStratBox)
         toolBar.addSeparator()
-        toolBar.addWidget(QLabel("Regions", toolBar))
-        self.nodeNumber = QSpinBox()
-        self.nodeNumber.setRange(1, 100)
-        self.nodeNumber.setValue(self.numberOfNodes)
+        toolBar.addWidget(QLabel("Generator settings", toolBar))
         self.regionNumberX = QSpinBox()
         self.regionNumberX.setRange(1, 100)
-        self.regionNumberX.setValue(self.numberOfRegionsX)
+        self.regionNumberX.setValue(self.graphGen.numberOfRegionsX)
+        self.regionNumberX.valueChanged.connect(self.setNumberOfRegionsX)
         self.regionNumberY = QSpinBox()
         self.regionNumberY.setRange(1, 100)
-        self.regionNumberY.setValue(self.numberOfRegionsY)
+        self.regionNumberY.setValue(self.graphGen.numberOfRegionsY)
+        self.regionNumberY.valueChanged.connect(self.setNumberOfRegionsY)
+        self.nodeNumber = QSpinBox()
+        self.nodeNumber.setRange(1, 100)
+        self.nodeNumber.setValue(self.graphGen.numberOfNodes)
+        self.nodeNumber.valueChanged.connect(self.setNumberOfNodes)
         self.edgeChance = QSpinBox()
         self.edgeChance.setRange(0, 100)
-        self.edgeChance.setValue(self.connection_chance)
+        self.edgeChance.setValue(self.graphGen.connection_chance)
+        self.edgeChance.valueChanged.connect(self.setConnectionChance)
         graphGrid = QGridLayout()
-        graphGrid.setColumnMinimumWidth(0, 25)
+        graphGrid.setColumnMinimumWidth(0, 20)
         graphGrid.setColumnMinimumWidth(1, 30)
-        graphGrid.addWidget(QLabel("Node number:"))
-        graphGrid.addWidget(self.nodeNumber)
         graphGrid.addWidget(QLabel("Regions X:"))
         graphGrid.addWidget(self.regionNumberX)
         graphGrid.addWidget(QLabel("Regions Y:"))
         graphGrid.addWidget(self.regionNumberY)
+        graphGrid.addWidget(QLabel("Node number:"))
+        graphGrid.addWidget(self.nodeNumber)
         graphGrid.addWidget(QLabel("Edge forming\nchance:"))
         graphGrid.addWidget(self.edgeChance)
         graphGridHolder = QWidget()
@@ -92,32 +88,26 @@ class MainWindow(QMainWindow):
         return toolBar
 
     def newGraph(self):
-        self.connection_chance = self.edgeChance.value()
-        #self.graph = self.graphGen.genGraph(self.connection_chance,
-        #                                    self.renderer.area_w,
-        #                                    self.renderer.area_h)
-        self.graph = self.graphGen.genGraph_Delaunay(self.renderer.area_w,
-                                                     self.renderer.area_h)
+        self.graph = self.graphGen.genGraph()
         self.renderer.repaint()
 
     def setNewNodeStrategy(self, index: int):
-        if index == 0:
-            self.numberOfNodes = self.nodeNumber.value()
-            self.randomClass1 = RandomCoords(self.numberOfNodes)
-            self.graphGen.setNodesStrategy(self.randomClass1)
-        elif index == 1:
-            self.numberOfNodes = self.nodeNumber.value()
-            self.numberOfRegionsX = self.regionNumberX.value()
-            self.numberOfRegionsY = self.regionNumberY.value()
-            self.randomClass2 = RandomRegionCoords(self.numberOfNodes,
-                                                           self.numberOfRegionsX,
-                                                           self.numberOfRegionsY)
-            self.graphGen.setNodesStrategy(self.randomClass2)
+        self.graphGen.nodeStrategy = index
 
     def setNewEdgeStrategy(self, index: int):
-        if index == 0:
-            pass
+        self.graphGen.edgeStrategy = index
+    
+    def setNumberOfNodes(self, value: int):
+        self.graphGen.numberOfNodes = value
 
+    def setConnectionChance(self, value: int):
+        self.graphGen.connection_chance = value
+
+    def setNumberOfRegionsX(self, value: int):
+        self.graphGen.numberOfRegionsX = value
+
+    def setNumberOfRegionsY(self, value: int):
+        self.graphGen.numberOfRegionsY = value
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

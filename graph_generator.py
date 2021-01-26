@@ -3,36 +3,76 @@
 import math
 import random
 
-from core.graph import Graph, Node, Edge
+from core.graph import Node, Edge, Graph
+from graph_visualisation import VisGraph
 
-from utilities.delaunay import Triangulation
-from utilities.node_generator import NodeGeneratorBase
+from utilities.delaunay import Delaunay
+from utilities.node_generator import RandomCoords, RandomRegionCoords
 
 
 class GraphGenerator:
 
     def __init__(self) -> None:
-        self.graph = Graph()
+        self.graph = VisGraph()
         self.random = None
+        self.numberOfRegionsX = 7
+        self.numberOfRegionsY = 8
+        self.numberOfNodes = 5
+        self.connection_chance = 2
+        self.area_w = 640
+        self.area_h = 480
+        self.random = None
+        self.nodeStrategyList = ['Whole Area Coords',
+                                 'Region Coords',
+                                 'Delaunay Coords'
+                                ]
+        self.nodeStrategy = 0
+        self.edgeStrategyList = ['Random connections',
+                                 'Delaunay triangulation'
+                                ]
+        self.edgeStrategy = 0
+        
+    def genGraph(self) -> Graph:
+        self.graph.clearGraph()
+        if self.nodeStrategy == 0:
+            self.random = RandomCoords(self.numberOfNodes)
+            self.createNodes(self.area_w, self.area_h)
+        elif self.nodeStrategy == 1:
+            self.random = RandomRegionCoords(self.numberOfNodes,
+                                             self.numberOfRegionsX,
+                                             self.numberOfRegionsY)
+            self.createNodes(self.area_w, self.area_h)
+        elif self.nodeStrategy == 2:
+            pass
 
-    def setNodesStrategy(self, randomClass):
-        self.random = randomClass
+        if self.edgeStrategy == 0:
+            self.createEdges_Random()
+        elif self.edgeStrategy == 1:
+            self.createEdges_Delaunay()
+
+        return self.graph
 
     def createNodes(self, area_w: int, area_h: int) -> None:
         coords = self.random.generate((0,0),(area_w,area_h))
         for coord in coords:
-            self.graph.add_node(Node(coord[0], coord[1]))
+            self.graph.addNode(Node(coord[0], coord[1]))
 
-    def createEdges(self, chance):
+    def createEdges_Random(self):
+        '''randomly creates connections based on chance'''
         for n1 in self.graph.nextNode():
             for n2 in self.graph.nextNode():
-                # TODO: dirty method to connect nodes, should replace (w delaunay)
-                if random.randint(0,100) < chance:
-                    self.graph.add_edge(Edge(n1, n2))
+                if random.randint(0,100) < self.connection_chance:
+                    edge = Edge(n1, n2)
+                    self.graph.addEdge(edge)
+                    n1.addEdge(edge)
+                    n2.addEdge(edge)
 
     def createEdges_Delaunay(self):
-        # for every node we need the first and second closest
-        # with 3 point we can calculate the delaunay triangulation
+        '''
+        for every node we need the first and second closest
+        with 3 point we can calculate the delaunay triangulation
+        '''
+        
         result = {}
         first = None,math.inf
         second = None,math.inf
@@ -56,24 +96,14 @@ class GraphGenerator:
             print(str(nodes), end=":\t")
             print(str(result[nodes][0]), end="\t")
             print(str(result[nodes][1]))
-            self.graph.add_edge(Edge(nodes,result[nodes][0]))
-            self.graph.add_edge(Edge(nodes,result[nodes][1]))
-        
+            self.graph.addEdge(Edge(nodes,result[nodes][0]))
+            self.graph.addEdge(Edge(nodes,result[nodes][1]))
 
-    def genGraph(self, connection_chance: int, area_w: int, area_h: int) -> Graph:
+    def genGraph_Delaunay(self) -> Graph:
         self.graph.clearGraph()
-        self.createNodes(area_w, area_h)
-        self.createEdges(connection_chance)
-        return self.graph
-
-    def genGraph_Delaunay(self, area_w: int, area_h: int) -> Graph:
-        self.graph.clearGraph()
-        self.createNodes(area_w, area_h)
+        self.createNodes(self.area_w, self.area_h)
         self.createEdges_Delaunay()
         return self.graph
         
 if __name__ == "__main__":
-    rand = NodeGeneratorBase.RandomCoords(10)
-    gg = GraphGenerator()
-    gg.setNodesStrategy(rand)
-    gg.genGraph_Delaunay(1024,768)
+    graph_gen = GraphGenerator()
