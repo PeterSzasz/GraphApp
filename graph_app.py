@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QComboBox, QGridLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QStatusBar, QToolBar, QWidget
 from PyQt5.QtWidgets import QApplication
 
+from graph_methods import breadth_first
 from graph_render_widget import GraphRender
 from graph_generator import GraphGenerator
 from utilities.node_generator import RandomCoords, RandomRegionCoords
@@ -91,7 +92,8 @@ class MainWindow(QMainWindow):
 
     def newGraph(self):
         self.graph = self.graphGen.genGraph()
-        self.renderer.repaint()
+        self.graph.highlighted_node = breadth_first(self.graph)
+        self.renderer.repaint()        
 
     def setNewNodeStrategy(self, index: int):
         self.graphGen.nodeStrategy = index

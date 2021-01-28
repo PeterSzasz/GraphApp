@@ -15,8 +15,8 @@ class GraphGenerator:
     def __init__(self) -> None:
         self.graph = VisGraph()
         self.random = None
-        self.numberOfRegionsX = 7
-        self.numberOfRegionsY = 8
+        self.numberOfRegionsX = 13
+        self.numberOfRegionsY = 13
         self.numberOfNodes = 5
         self.connection_chance = 2
         self.area_w = 640
@@ -26,11 +26,12 @@ class GraphGenerator:
                                  'Region Coords',
                                  'Delaunay Coords'
                                 ]
-        self.nodeStrategy = 0
+        self.nodeStrategy = 1
         self.edgeStrategyList = ['Random connections',
+                                 'Two Closest nodes',
                                  'Delaunay triangulation'
                                 ]
-        self.edgeStrategy = 0
+        self.edgeStrategy = 1
         
     def genGraph(self) -> Graph:
         self.graph.clearGraph()
@@ -48,11 +49,14 @@ class GraphGenerator:
         if self.edgeStrategy == 0:
             self.createEdges_Random()
         elif self.edgeStrategy == 1:
+            self.createEdges_ClosestTwo()
+        elif self.edgeStrategy == 2:
             self.createEdges_Delaunay()
 
         return self.graph
 
     def createNodes(self, area_w: int, area_h: int) -> None:
+        '''creates nodes on random coordinates'''
         coords = self.random.generate((0,0),(area_w,area_h))
         for coord in coords:
             self.graph.addNode(Node(coord[0], coord[1]))
@@ -67,10 +71,10 @@ class GraphGenerator:
                     n1.addEdge(edge)
                     n2.addEdge(edge)
 
-    def createEdges_Delaunay(self):
+    def createEdges_ClosestTwo(self) -> None:
         '''
-        for every node we need the first and second closest
-        with 3 point we can calculate the delaunay triangulation
+        for every node we calculates the first and second closest
+        then creates and adds the edges to the graph and to the nodes
         '''
         
         result = {}
@@ -92,18 +96,26 @@ class GraphGenerator:
             second = None,math.inf
 
         print("Nodes and neighbours:")
-        for nodes in result:
-            print(str(nodes), end=":\t")
-            print(str(result[nodes][0]), end="\t")
-            print(str(result[nodes][1]))
-            self.graph.addEdge(Edge(nodes,result[nodes][0]))
-            self.graph.addEdge(Edge(nodes,result[nodes][1]))
+        for node_from in result:
+            first_closest = result[node_from][0]
+            second_closest = result[node_from][1]
+            print(node_from, end=":\t")
+            print(first_closest, end="\t")
+            print(second_closest)
+            first_edge = Edge(node_from,first_closest)
+            self.graph.addEdge(first_edge)
+            node_from.addEdge(first_edge)
+            first_closest.addEdge(first_edge)
+            second_edge = Edge(node_from,second_closest)
+            self.graph.addEdge(second_edge)
+            node_from.addEdge(second_edge)
+            second_closest.addEdge(second_edge)
 
-    def genGraph_Delaunay(self) -> Graph:
-        self.graph.clearGraph()
-        self.createNodes(self.area_w, self.area_h)
-        self.createEdges_Delaunay()
-        return self.graph
-        
+    def createEdges_Delaunay(self):
+        '''
+        with 3 point we can calculate the delaunay triangulation
+        '''
+        pass
+            
 if __name__ == "__main__":
     graph_gen = GraphGenerator()
