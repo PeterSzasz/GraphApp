@@ -3,7 +3,7 @@
 import sys
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QComboBox, QGridLayout, QLabel, QMainWindow, QSpinBox, QStatusBar, QToolBar, QWidget
+from PyQt5.QtWidgets import QComboBox, QGridLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QStatusBar, QToolBar, QWidget
 from PyQt5.QtWidgets import QApplication
 
 from graph_render_widget import GraphRender
@@ -20,16 +20,18 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(self.renderer)
         # set up graph generator and renderer
         self.graphGen = GraphGenerator()
-        self.graphGen.area_h = self.renderer.area_h
         self.graphGen.area_w = self.renderer.area_w
+        self.graphGen.area_h = self.renderer.area_h
         self.graph = self.graphGen.genGraph()
         self.renderer.setGraph(self.graph)
         # set up menus and bars
-        menu = self.menuBar().addMenu("&File")
-        menu.addAction("&New")
-        menu.addAction("&Save")
-        menu.addAction("&Load")
-        menu.addAction("E&xit", self.close)
+        file_menu = self.menuBar().addMenu("&File")
+        file_menu.addAction("&New")
+        file_menu.addAction("&Save")
+        file_menu.addAction("&Load")
+        file_menu.addAction("E&xit", self.close)
+        view_menu = self.menuBar().addMenu("&View")
+        view_menu.addAction("Voronoi &Background", self.renderer.drawBackground)
         toolBar = self.createToolBar()
         toolBar.setOrientation(Qt.Vertical)
         self.addToolBar(Qt.RightToolBarArea, toolBar)
@@ -83,7 +85,7 @@ class MainWindow(QMainWindow):
         graphGridHolder = QWidget()
         graphGridHolder.setLayout(graphGrid)
         toolBar.addWidget(graphGridHolder)
-        toolBar.addSeparator()
+        toolBar.addSeparator()        
         toolBar.addAction("Exit", self.close)
         return toolBar
 
@@ -99,6 +101,16 @@ class MainWindow(QMainWindow):
     
     def setNumberOfNodes(self, value: int):
         self.graphGen.numberOfNodes = value
+        if value <= 10:
+            self.renderer.pixel_size = 32
+        elif value <= 20:
+            self.renderer.pixel_size = 16
+        elif value <= 40:
+            self.renderer.pixel_size = 8
+        elif value <= 80:
+            self.renderer.pixel_size = 4
+        else:
+            self.renderer.pixel_size = 2
 
     def setConnectionChance(self, value: int):
         self.graphGen.connection_chance = value

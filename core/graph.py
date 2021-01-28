@@ -1,5 +1,7 @@
 # simple, common graph, mainly for inheritance
 
+import random
+
 class Node:
     '''graph node with position'''
 
@@ -56,10 +58,27 @@ class Graph:
     '''simple graph'''
 
     def __init__(self) -> None:
-        self.edges = []
         self.nodes = []
-        self.incidence_m = [] #TODO: list? realy?
+        self.edges = []
+        self.incidence_m = [] #TODO: list?
+        self.nodes_hash_seed = random.randint(0, 9999999)
+        self.edges_hash_seed = random.randint(0, 9999999)
 
+    def __hash__(self) -> int:
+        node_avg = 0
+        edge_avg = 0
+        nodes_hash = self.nodes_hash_seed
+        edges_hash = self.edges_hash_seed
+        for node in self.nextNode():
+            nodes_hash += hash(node)
+        for edge in self.nextEdge():
+            edges_hash += hash(edge)
+        if len(self.nodes) != 0:
+            node_avg = self.nodes_hash / len(self.nodes)
+        if len(self.edges) != 0:
+            edge_avg = self.edges_hash / len(self.edges)
+        return int((node_avg + edge_avg)/2)
+        
     def addNode(self, node: Node):
         self.nodes.append(node)
 
@@ -83,6 +102,8 @@ class Graph:
         '''deletes all the nodes and edges'''
         self.edges.clear()
         self.nodes.clear()
+        self.nodes_hash = random.randint(0, 999999)
+        self.edges_hash = random.randint(0, 999999)
 
     class InvalidVertexError(Exception):
         def __init__(self, message):
