@@ -3,7 +3,7 @@
 import random
 
 class Node:
-    '''graph node with position'''
+    '''Graph Node with position, place for data and in-/outgoing edges.'''
 
     def __init__(self, posx, posy):
         self.posX = posx
@@ -38,7 +38,7 @@ class Node:
 
 
 class Edge:
-    '''edge with two nodes'''
+    '''Edge with two nodes.'''
 
     def __init__(self, n1: Node, n2: Node):
         self.node1 = n1
@@ -55,16 +55,16 @@ class Edge:
 
 
 class Graph:
-    '''simple graph'''
+    '''Simple graph class. Uses node and edge lists.'''
 
     def __init__(self) -> None:
         self.nodes = []
         self.edges = []
-        self.incidence_m = [] #TODO: list?
         self.nodes_hash_seed = random.randint(0, 9999999)
         self.edges_hash_seed = random.randint(0, 9999999)
 
     def __hash__(self) -> int:
+        '''Every newly created graph object got different hash, based on nodes and edges.'''
         node_avg = 0
         edge_avg = 0
         nodes_hash = self.nodes_hash_seed
@@ -89,17 +89,17 @@ class Graph:
             self.edges.append(edge)
 
     def nextNode(self):
-        '''node generator'''
+        '''generator method, iterates through the nodes'''
         for node in self.nodes:
             yield node
 
     def nextEdge(self):
-        '''edge generator'''
+        '''generator method, iterates through the edges'''
         for edge in self.edges:
             yield edge
 
     def clearGraph(self):
-        '''deletes all the nodes and edges'''
+        '''deletes all the nodes and edges, resets hash seeds'''
         self.edges.clear()
         self.nodes.clear()
         self.nodes_hash = random.randint(0, 999999)

@@ -4,6 +4,8 @@ import numpy as np
 from utilities.node_generator import NodeGeneratorBase
 
 class Delaunay(NodeGeneratorBase):
+    '''Class for generating the Delaunay triangluation on given coordinates.'''
+
     def __init__(self) -> None:
         super().__init__()
 

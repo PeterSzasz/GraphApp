@@ -36,16 +36,14 @@ class RandomCoords(NodeGeneratorBase):
             y = random.randint(min[1], max[1])
             result.append((x,y))
         random.seed(None)
-
-        #print(result)
         return result
 
 
 class RandomRegionCoords(RandomCoords):
     '''
-    extends the random coordinate generator
-    regionNum variables sets the number of regions
-    the whole area should be divided
+    Extends the random coordinate generator.
+    The regionNum variables sets the number of regions.
+    The whole area should be divided.
     '''
 
     def __init__(self, num: int = 2, regionNumX: int = 2, regionNumY: int = 2) -> None:
@@ -59,9 +57,11 @@ class RandomRegionCoords(RandomCoords):
 
     def generate(self, min: tuple, max: tuple) -> list:
         '''
-        simple random numbers by region
-        min: coordinates of top left corner of whole area
-        max: coordinates of bottom right corner of whole area
+        Simple random coordinates by region.
+
+        Args:
+            min (tuple): coordinates of top left corner of whole area
+            max (tuple): coordinates of bottom right corner of whole area
         '''
         offsetX = max[0] // self.regionNumX
         offsetY = max[1] // self.regionNumY
@@ -73,20 +73,16 @@ class RandomRegionCoords(RandomCoords):
 
         result = []
         self.num = 1
-        for _ in range(self.regionNumX):
-            for _ in range(self.regionNumY):
+        for _ in range(self.regionNumX):    # calculates region border corner coordinates
+            for _ in range(self.regionNumY):# and generates new node coordinate with parent method
                 coord = super().generate((regionMinX, regionMinY),
                                           (regionMaxX, regionMaxY))
                 result.append(coord[0])
-                # shift moving region y coords
-                regionMinY += offsetY
+                regionMinY += offsetY   # shifts region y coords
                 regionMaxY += offsetY
-            # reset moving region y coords 
-            regionMinY = 0
-            regionMaxY = 0 + offsetY
-            # shift moving region x coords
-            regionMinX += offsetX
+            regionMinY = 0              # resets region y coords
+            regionMaxY = 0 + offsetY            
+            regionMinX += offsetX       # shifts region x coords
             regionMaxX += offsetX
             
-        print(result)
         return result

@@ -1,7 +1,7 @@
 # simple stack module
 
 class stack:
-  '''slep.. sslomip... simple stack, with push n pop n peek'''
+  '''simple stack, with push n pop n peek'''
 
   def __init__(self):
     self.dataplates = []

@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QComboBox, QGridLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QStatusBar, QToolBar, QWidget
 from PyQt5.QtWidgets import QApplication
 
-from graph_methods import breadth_first
+import graph_methods
 from graph_render_widget import GraphRender
 from graph_generator import GraphGenerator
 from utilities.node_generator import RandomCoords, RandomRegionCoords
@@ -25,6 +25,7 @@ class MainWindow(QMainWindow):
         self.graphGen.area_h = self.renderer.area_h
         self.graph = self.graphGen.genGraph()
         self.renderer.setGraph(self.graph)
+        self.newGraph()
         # set up menus and bars
         file_menu = self.menuBar().addMenu("&File")
         file_menu.addAction("&New")
@@ -48,11 +49,13 @@ class MainWindow(QMainWindow):
         nodeStratBox = QComboBox(toolBar)
         nodeStratBox.addItems(self.graphGen.nodeStrategyList)
         nodeStratBox.currentIndexChanged.connect(self.setNewNodeStrategy)
+        nodeStratBox.setCurrentIndex(self.graphGen.nodeStrategy)
         toolBar.addWidget(nodeStratBox)
         toolBar.addWidget(QLabel("\nEdge generator:"))
         edgeStratBox = QComboBox(toolBar)
         edgeStratBox.addItems(self.graphGen.edgeStrategyList)
         edgeStratBox.currentIndexChanged.connect(self.setNewEdgeStrategy)
+        edgeStratBox.setCurrentIndex(self.graphGen.edgeStrategy)
         toolBar.addWidget(edgeStratBox)
         toolBar.addSeparator()
         toolBar.addWidget(QLabel("Generator settings", toolBar))
@@ -92,7 +95,10 @@ class MainWindow(QMainWindow):
 
     def newGraph(self):
         self.graph = self.graphGen.genGraph()
-        self.graph.highlighted_node = breadth_first(self.graph)
+        #self.graph.highlighted_node = graph_methods.breadth_first(self.graph, self.graph.nodes[0])
+        #graph_methods.highlightComponents(self.graph)
+        graph_methods.highlightSpanningTree(self.graph)
+
         self.renderer.repaint()        
 
     def setNewNodeStrategy(self, index: int):
@@ -127,5 +133,5 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     mw = MainWindow()
     mw.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
     

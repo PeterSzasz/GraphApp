@@ -11,7 +11,11 @@ from utilities.node_generator import RandomCoords, RandomRegionCoords
 
 
 class GraphGenerator:
-
+    '''
+    Sets and stores different graph generator methods (strategies).
+    Calls appropriate in genGraph. Simpler calculations (like two-closest-node)
+    are developed here, others are called from different classes (Delaunay).
+    '''
     def __init__(self) -> None:
         self.graph = VisGraph()
         self.random = None
@@ -34,15 +38,17 @@ class GraphGenerator:
         self.edgeStrategy = 1
         
     def genGraph(self) -> Graph:
+        '''Initiates a graph node and graph edge generator methods.
+            Edge and node strategy set separately, eg.: in gui class'''
         self.graph.clearGraph()
         if self.nodeStrategy == 0:
             self.random = RandomCoords(self.numberOfNodes)
-            self.createNodes(self.area_w, self.area_h)
+            self.createNodes_Random(self.area_w, self.area_h)
         elif self.nodeStrategy == 1:
             self.random = RandomRegionCoords(self.numberOfNodes,
                                              self.numberOfRegionsX,
                                              self.numberOfRegionsY)
-            self.createNodes(self.area_w, self.area_h)
+            self.createNodes_Random(self.area_w, self.area_h)
         elif self.nodeStrategy == 2:
             pass
 
@@ -55,7 +61,7 @@ class GraphGenerator:
 
         return self.graph
 
-    def createNodes(self, area_w: int, area_h: int) -> None:
+    def createNodes_Random(self, area_w: int, area_h: int) -> None:
         '''creates nodes on random coordinates'''
         coords = self.random.generate((0,0),(area_w,area_h))
         for coord in coords:
@@ -80,9 +86,8 @@ class GraphGenerator:
         result = {}
         first = None,math.inf
         second = None,math.inf
-        for n1 in self.graph.nextNode():
-            print(str(n1))
-            for n2 in self.graph.nextNode():
+        for n1 in self.graph.nextNode():            # calculates the two closest node
+            for n2 in self.graph.nextNode():        # for each node, TODO: optimise calc
                 if n2 == n1:
                     continue
                 diff = (abs(n1.x() - n2.x()), abs(n1.y() - n2.y()))
@@ -95,13 +100,9 @@ class GraphGenerator:
             first = None,math.inf
             second = None,math.inf
 
-        print("Nodes and neighbours:")
-        for node_from in result:
+        for node_from in result:                    # sets the neighbours for each node
             first_closest = result[node_from][0]
             second_closest = result[node_from][1]
-            print(node_from, end=":\t")
-            print(first_closest, end="\t")
-            print(second_closest)
             first_edge = Edge(node_from,first_closest)
             self.graph.addEdge(first_edge)
             node_from.addEdge(first_edge)
