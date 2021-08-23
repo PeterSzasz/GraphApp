@@ -3,13 +3,13 @@
 import sys
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QComboBox, QGridLayout, QLabel, QMainWindow, QPushButton, QSpinBox, QStatusBar, QToolBar, QWidget
 from PyQt5.QtWidgets import QApplication
 
 import graph_methods
 from graph_render_widget import GraphRender
 from graph_generator import GraphGenerator
-from utilities.node_generator import RandomCoords, RandomRegionCoords
 
 class MainWindow(QMainWindow):
     '''window for visualizing and controlling graphs'''
@@ -40,6 +40,18 @@ class MainWindow(QMainWindow):
         statusBar = QStatusBar()
         statusBar.showMessage("Status Bar! More down to earth than Space Bar.")
         self.setStatusBar(statusBar)
+
+    def keyPressEvent(self, a0: QKeyEvent) -> None:
+        if a0.key() == Qt.Key.Key_F10:
+            screen = QApplication.primaryScreen()
+            screenshot = screen.grabWindow(self.renderer.winId())
+            screenshot.save('screenshot_renderer.jpg', 'jpg')
+            print("renderer screenshot saved")
+        if a0.key() == Qt.Key.Key_F11:
+            screen = QApplication.primaryScreen()
+            screenshot = screen.grabWindow(self.winId())
+            screenshot.save('screenshot_window.jpg', 'jpg')
+            print("window screenshot saved")
 
     def createToolBar(self) -> QToolBar:
         toolBar = QToolBar(self)

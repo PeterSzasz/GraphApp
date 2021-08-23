@@ -20,6 +20,15 @@ class Node:
     def y(self):
         return self.posY
 
+    def __eq__(self, n) -> bool:
+        if self.posX == n.posX and self.posY == n.posY:
+            return True
+        else:
+            return False
+
+    def __hash__(self) -> int:
+        return int((self.posX << 16) ^ self.posY)
+
     def addEdge(self, edge):
         self.edges.append(edge)
 
@@ -53,6 +62,15 @@ class Edge:
     def n2(self):
         return self.node2
 
+    def __eq__(self, e) -> bool:
+        if self.n1() == e.n1() and self.n2() == e.n2() or \
+            self.n1() == e.n2() and self.n2() == e.n1():
+            return True
+        else:
+            return False
+
+    def __hash__(self) -> int:
+        return int(self.node1.__hash__()/2 + self.node2.__hash__()/2)
 
 class Graph:
     '''Simple graph class. Uses node and edge lists.'''

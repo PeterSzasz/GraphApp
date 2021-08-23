@@ -19,9 +19,9 @@ class GraphGenerator:
     def __init__(self) -> None:
         self.graph = VisGraph()
         self.random = None
-        self.numberOfRegionsX = 13
-        self.numberOfRegionsY = 13
-        self.numberOfNodes = 5
+        self.numberOfRegionsX = 7
+        self.numberOfRegionsY = 7
+        self.numberOfNodes = 15
         self.connection_chance = 2
         self.area_w = 640
         self.area_h = 480
@@ -35,7 +35,7 @@ class GraphGenerator:
                                  'Two Closest nodes',
                                  'Delaunay triangulation'
                                 ]
-        self.edgeStrategy = 1
+        self.edgeStrategy = 2
         
     def genGraph(self) -> Graph:
         '''Initiates a graph node and graph edge generator methods.
@@ -116,7 +116,10 @@ class GraphGenerator:
         '''
         with 3 point we can calculate the delaunay triangulation
         '''
-        pass
+        delaunay = Delaunay()
+        new_edges = delaunay.generate(self.graph.nodes)
+        if new_edges:
+            self.graph.edges = new_edges
             
 if __name__ == "__main__":
     graph_gen = GraphGenerator()

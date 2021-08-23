@@ -4,7 +4,8 @@ from core.graph import Graph
 import math
 import time
 from PyQt5.QtCore import QObject, QThread, Qt, pyqtSignal
-from PyQt5.QtGui import QBrush, QColor, QImage, QMouseEvent, QPainter, QPaintEvent, QPalette, QPen, QStaticText
+from PyQt5.QtGui import QBrush, QColor, QImage, QMouseEvent, QPainter
+from PyQt5.QtGui import QPaintEvent, QPen, QStaticText
 from PyQt5.QtWidgets import QWidget
 #import concurrent.futures
 #import multiprocessing
@@ -20,7 +21,7 @@ class VoronoiBackground(QObject):
 
     def __init__(self, graph: VisGraph, area_w: int, area_h: int, pixel_size: int, worker_image: QImage) -> None:
         super().__init__()
-        self.graph = graph
+        self.graph: Graph = graph
         self.area_w = area_w
         self.area_h = area_h
         self.pixel_size = pixel_size
@@ -45,7 +46,7 @@ class VoronoiBackground(QObject):
                 closest = diff_length
         return math.floor(closest)
 
-    def run(self) -> QImage:
+    def run(self) -> None:
         '''
         Thread's working method.
         Iterates through all the pixels in the image, 
@@ -77,7 +78,7 @@ class GraphRender(QWidget):
 
     def __init__(self) -> None:
         super().__init__()
-        self.graph = None
+        self.graph: Graph = None
         self.area_w = 1024
         self.area_h = 768
         self.pixel_size = 16
@@ -99,10 +100,10 @@ class GraphRender(QWidget):
         self.worker_image = QImage(self.area_w, self.area_h, QImage.Format_ARGB32)
         self.work_thread = QThread()
         self.worker = VoronoiBackground(self.graph,
-                                            self.area_w,
-                                            self.area_h,
-                                            self.pixel_size,
-                                            self.worker_image)
+                                        self.area_w,
+                                        self.area_h,
+                                        self.pixel_size,
+                                        self.worker_image)
         self.worker.moveToThread(self.work_thread)
         self.work_thread.started.connect(self.worker.run)
         self.worker.finished.connect(self.work_thread.quit)
@@ -169,7 +170,6 @@ class GraphRender(QWidget):
             self.previous_hash = hash(self.graph)
         self.drawEdges()                                # and repaint
         self.drawNodes()
-        print(self.previous_hash)
         painter = QPainter(self.bkg_image)              # combine the occasional background
         painter.drawImage(0, 0, self.graph_image)       # and the actual graph
         painter.end()
@@ -178,12 +178,11 @@ class GraphRender(QWidget):
         painter.end()
 
     def mousePressEvent(self, a0: QMouseEvent) -> None:
-        print(a0.localPos())
         for node in self.graph.nextNode():
             if abs(node.x() - a0.localPos().x()) < 20 and abs(node.y() - a0.localPos().y()) < 20:
-                print(node)
                 self.graph.highlightNodeSwitch(node)
-        self.repaint()
+                self.graph_image.fill(QColor(255,255,255,0))
+                self.repaint()
         return super().mousePressEvent(a0)
 
     def colorPicker(self, node):

@@ -3,3 +3,4 @@ __pycache__/
 attic/
 workspace.code-workspace
 experiment.py
+.venv/

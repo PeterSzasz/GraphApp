@@ -4,7 +4,7 @@ from core.graph import Graph
 
 
 class VisGraph(Graph):
-    '''Simple graph calss extended with option to mark edges and nodes as highlighted.'''
+    '''Simple graph class extended with option to mark edges and nodes as highlighted.'''
 
     def __init__(self):
         super().__init__()

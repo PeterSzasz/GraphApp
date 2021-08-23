@@ -66,7 +66,6 @@ def highlightComponents(graph: VisGraph) -> None:
     for node in graph.highlighted_node:
         node.data = {'component': componentNo, 'number': nodeNo}
         nodeNo += 1
-        print(node.data)
 
     for node in graph.nextNode():
         nodeNo = 1
@@ -76,7 +75,6 @@ def highlightComponents(graph: VisGraph) -> None:
             for node in new_component:
                 node.data = {'component': componentNo, 'number': nodeNo}
                 nodeNo += 1
-                print(node.data)
             graph.highlighted_node.extend(new_component)
 
 def highlightSpanningTree(graph: VisGraph) -> None:
@@ -96,7 +94,6 @@ def highlightSpanningTree(graph: VisGraph) -> None:
     for node in graph.highlighted_node:
         node.data = {'component': componentNo, 'number': nodeNo}
         nodeNo += 1
-        print(node.data)
 
     for node in graph.nextNode():
         nodeNo = 1
@@ -106,5 +103,4 @@ def highlightSpanningTree(graph: VisGraph) -> None:
             for node in new_component:
                 node.data = {'component': componentNo, 'number': nodeNo}
                 nodeNo += 1
-                print(node.data)
             graph.highlighted_node.extend(new_component)
