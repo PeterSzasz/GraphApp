@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         toolBar.setOrientation(Qt.Vertical)
         self.addToolBar(Qt.RightToolBarArea, toolBar)
         statusBar = QStatusBar()
-        statusBar.showMessage("Status Bar! More down to earth than Space Bar.")
+        statusBar.showMessage("Status Bar! Better than Space Bar!")
         self.setStatusBar(statusBar)
 
     def keyPressEvent(self, a0: QKeyEvent) -> None:

@@ -117,9 +117,38 @@ class GraphGenerator:
         with 3 point we can calculate the delaunay triangulation
         '''
         delaunay = Delaunay()
-        new_edges = delaunay.generate(self.graph.nodes)
+        new_edges,vor_nodes = delaunay.generate(self.graph.nodes)
         if new_edges:
-            self.graph.edges = new_edges
-            
+            self.graph.nodes = []
+            self.graph.edges = []
+        
+        sites = {}
+        # create voronoi
+        for node1 in vor_nodes:
+            for node2 in vor_nodes:
+                node1_sites = node1.data['sites']
+                if len(node1_sites.intersection(node2.data['sites'])) == 2:
+                    common_nodes = list(node1_sites.intersection(node2.data['sites']))
+                    edge = Edge(node1,node2)
+                    node1.addEdge(edge)
+                    node2.addEdge(edge)
+                    self.graph.addNode(node1)
+                    self.graph.addNode(node2)
+                    self.graph.addNode(common_nodes[0])
+                    self.graph.addNode(common_nodes[1])
+                    self.graph.addEdge(edge)
+                    sites.setdefault(common_nodes[0], []).append(node1)
+                    #sites.setdefault(common_nodes[0], []).append(node2)
+                    #sites.setdefault(common_nodes[1], []).append(node1)
+                    #sites.setdefault(common_nodes[1], []).append(node2)
+
+        print("sites:")
+        for key in sites:
+            print(f"site: {key}")
+            for n in sites[key]:
+                print(n)
+        self.graph.edges = list(set(self.graph.edges))
+        self.graph.nodes = list(set(self.graph.nodes))
+
 if __name__ == "__main__":
     graph_gen = GraphGenerator()

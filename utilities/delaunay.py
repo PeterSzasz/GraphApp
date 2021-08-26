@@ -78,7 +78,7 @@ class Delaunay(NodeGeneratorBase):
     def __init__(self) -> None:
         super().__init__()
 
-    def generate(self, nodes: list[Node]) -> list[Edge]:
+    def generate(self, nodes: list[Node]) -> tuple[list[Edge],list[Edge]]:
         '''        
         Bowyer-Watson algorithm
         https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm
@@ -91,9 +91,11 @@ class Delaunay(NodeGeneratorBase):
             list[Edge]: list of edges (point pairs) that 
         '''
         
-        result: list[Edge] = []
+        delaunay_result: list[Edge] = []
+        voronoi_result: list[Edge] = []
+        voronoi_data = {}
         if not nodes:
-            return result
+            return delaunay_result, voronoi_result
         triangulation: list[Triangle] = []
         super_triangle = Triangle()
         # TODO: should calculate min-max points and set accordingly
@@ -117,6 +119,9 @@ class Delaunay(NodeGeneratorBase):
                     # new point is within circumcircle
                     bad_triangles.append(tri)
                 # TODO: should store cc center for Voronoi
+                vor_node = Node(int(cc_x),int(cc_y))
+                vor_node.data = {"center_node": node}
+                voronoi_data[tri] = vor_node
             polygon = []
             for tri1 in bad_triangles:
                 # find bounding edges of polygonal hole
@@ -147,10 +152,22 @@ class Delaunay(NodeGeneratorBase):
                 tri.checkNode(super_triangle.getB()) or \
                 tri.checkNode(super_triangle.getC()):
                 continue
-            result.append(tri.getAB())
-            result.append(tri.getBC())
-            result.append(tri.getCA())
-        return result
+            delaunay_result.append(tri.getAB())
+            delaunay_result.append(tri.getBC())
+            delaunay_result.append(tri.getCA())
+            # create voronoi
+            A = (tri.getA().x(),tri.getA().y())
+            B = (tri.getB().x(),tri.getB().y())
+            C = (tri.getC().x(),tri.getC().y())
+            # get circumcircle center and radius
+            cc_x, cc_y, cc_r = self.calcCircleMidpoint(A,B,C)
+            voronoi_node = Node(int(cc_x),int(cc_y))
+            voronoi_node.data = {"sites":{tri.getA(),tri.getB(),tri.getC()}}
+            voronoi_result.append(voronoi_node)
+
+        voronoi_result = list(set(voronoi_result))
+        delaunay_result = list(set(delaunay_result))
+        return delaunay_result, voronoi_result
 
     def generate_circlecheck(self, nodes: list[Node]) -> list[Edge]:
         # a brute force version

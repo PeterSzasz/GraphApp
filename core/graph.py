@@ -27,7 +27,7 @@ class Node:
             return False
 
     def __hash__(self) -> int:
-        return int((self.posX << 16) ^ self.posY)
+        return int(self.posX * self.posY)
 
     def addEdge(self, edge):
         self.edges.append(edge)
@@ -92,9 +92,9 @@ class Graph:
         for edge in self.nextEdge():
             edges_hash += hash(edge)
         if len(self.nodes) != 0:
-            node_avg = self.nodes_hash / len(self.nodes)
+            node_avg = nodes_hash / len(self.nodes)
         if len(self.edges) != 0:
-            edge_avg = self.edges_hash / len(self.edges)
+            edge_avg = edges_hash / len(self.edges)
         return int((node_avg + edge_avg)/2)
         
     def addNode(self, node: Node):
@@ -102,7 +102,7 @@ class Graph:
 
     def addEdge(self, edge: Edge):
         if self.nodes.count(edge.n1()) == 0 or self.nodes.count(edge.n2()) == 0:
-            raise self.InvalidVertexError("add_edge failed, start or end node missing")
+            raise self.InvalidVertexError(f"add_edge failed, start or end node missing: {edge}")
         else:
             self.edges.append(edge)
 
@@ -120,8 +120,8 @@ class Graph:
         '''deletes all the nodes and edges, resets hash seeds'''
         self.edges.clear()
         self.nodes.clear()
-        self.nodes_hash = random.randint(0, 999999)
-        self.edges_hash = random.randint(0, 999999)
+        self.nodes_hash_seed = random.randint(0, 999999)
+        self.edges_hash_seed = random.randint(0, 999999)
 
     class InvalidVertexError(Exception):
         def __init__(self, message):

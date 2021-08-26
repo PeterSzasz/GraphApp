@@ -178,25 +178,32 @@ class GraphRender(QWidget):
         painter.end()
 
     def mousePressEvent(self, a0: QMouseEvent) -> None:
+        return super().mousePressEvent(a0)
+
+    def mouseMoveEvent(self, a0: QMouseEvent) -> None:
         for node in self.graph.nextNode():
-            if abs(node.x() - a0.localPos().x()) < 20 and abs(node.y() - a0.localPos().y()) < 20:
+            if abs(node.x() - a0.localPos().x()) < 6 and abs(node.y() - a0.localPos().y()) < 6:
+                node.posX = int(a0.localPos().x())
+                node.posY = int(a0.localPos().y())
                 self.graph.highlightNodeSwitch(node)
                 self.graph_image.fill(QColor(255,255,255,0))
                 self.repaint()
-        return super().mousePressEvent(a0)
+        return super().mouseMoveEvent(a0)
 
     def colorPicker(self, node):
         '''sets the brush color'''
-        if node.data['component'] == 1:
-            result = Qt.darkGreen
-        elif node.data['component'] == 2:
-            result = Qt.darkRed
-        elif node.data['component'] == 3:
-            result = Qt.darkCyan
-        elif node.data['component'] == 4:
-            result = Qt.darkBlue
-        elif node.data['component'] == 5:
-            result = Qt.magenta
-        else:
-            result = Qt.yellow
+        result = Qt.black
+        if 'component' in node.data:
+            if node.data['component'] == 1:
+                result = Qt.darkGreen
+            elif node.data['component'] == 2:
+                result = Qt.darkRed
+            elif node.data['component'] == 3:
+                result = Qt.darkCyan
+            elif node.data['component'] == 4:
+                result = Qt.darkBlue
+            elif node.data['component'] == 5:
+                result = Qt.magenta
+            else:
+                result = Qt.yellow
         return result
